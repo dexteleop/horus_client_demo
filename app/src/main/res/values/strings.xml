@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Horus SDK Demo</string>
+    <string name="devices">设备列表</string>
+    <string name="discover">发现</string>
+    <string name="streamer_ip_hint">Streamer IP</string>
+    <string name="default_streamer_ip" translatable="false">192.168.31.150</string>
+    <string name="connect">连接</string>
+    <string name="stop">停止</string>
+    <string name="ready">就绪</string>
+    <string name="discovering">正在发现设备</string>
+    <string name="discovery_failed">发现启动失败: %1$d</string>
+    <string name="discovery_unavailable">设备发现不可用</string>
+    <string name="device_found">已发现: %1$s (%2$s)</string>
+    <string name="stopped">已停止</string>
+    <string name="streaming">串流中: %1$s</string>
+    <string name="start_failed">启动失败: %1$d</string>
+    <string name="select_device">请选择设备</string>
+    <string name="disconnect">断开</string>
+    <string name="last_error">最近错误</string>
+    <string name="send_data">发送数据</string>
+    <string name="disconnected">已断开</string>
+    <string name="data_sent">已发送 %1$d 字节</string>
+    <string name="send_failed">发送失败: %1$d</string>
+</resources>
