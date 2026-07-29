@@ -18,6 +18,11 @@ namespace {
 
 JavaVM* g_vm = nullptr;
 
+// Cache CameraCalibration class global ref so native callback threads can use it
+// (FindClass on native threads uses system ClassLoader which can't find app classes).
+jclass g_calib_class = nullptr;
+jmethodID g_calib_ctor = nullptr;
+
 // 获取当前线程的 JNIEnv，必要时 attach 当前线程并在析构时 detach。
 class ScopedEnv {
 public:
@@ -209,13 +214,11 @@ void on_data(const talite_data* data) {
         listeners = collect_listeners(env, [](State* s) { return s->data_listener; });
     }
 
-    // 校准数据仅在回调期间有效，这里拷贝到 Java 对象。
-    jclass calib_class = env->FindClass("com/horus/sdkdemo/NativeStreamer$CameraCalibration");
-    if (!calib_class) return;
-    jmethodID ctor = env->GetMethodID(calib_class, "<init>",
-            "([F[F[F[F[F[F[I[F[F)V");
-    if (!ctor) {
-        env->DeleteLocalRef(calib_class);
+    // Use globally cached class ref (native threads can't FindClass app classes).
+    jclass calib_class = g_calib_class;
+    jmethodID ctor = g_calib_ctor;
+    if (!calib_class || !ctor) {
+        LOGE("on_data: cached CameraCalibration class not initialized");
         return;
     }
     jfloatArray r_l = to_jfloat_array(env, c->r_raw_l_row);
@@ -255,7 +258,6 @@ void on_data(const talite_data* data) {
     env->DeleteLocalRef(img);
     env->DeleteLocalRef(yaw);
     env->DeleteLocalRef(pitch);
-    env->DeleteLocalRef(calib_class);
 }
 
 // 替换某个 listener 字段，旧引用释放、新引用置入（调用方持 listener_mutex）。
@@ -295,6 +297,16 @@ Java_com_horus_sdkdemo_NativeStreamer_nativeCreate(JNIEnv* env, jclass) {
             talite_set_h265_stream_callback(value->context, on_h265_stream);
             talite_set_error_callback(value->context, on_error);
             talite_set_data_callback(value->context, on_data);
+        }
+        // Cache CameraCalibration class ref on app thread for native callback use.
+        if (!g_calib_class) {
+            jclass local = env->FindClass("com/horus/sdkdemo/NativeStreamer$CameraCalibration");
+            if (local) {
+                g_calib_class = reinterpret_cast<jclass>(env->NewGlobalRef(local));
+                g_calib_ctor = env->GetMethodID(g_calib_class, "<init>",
+                        "([F[F[F[F[F[F[I[F[F)V");
+                env->DeleteLocalRef(local);
+            }
         }
         states.push_back(value);
     }
