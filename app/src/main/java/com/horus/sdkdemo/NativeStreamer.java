@@ -124,9 +124,17 @@ public final class NativeStreamer implements AutoCloseable {
         }
 
         @Override public String toString() {
-            return "CameraCalibration{imageSize=" + Arrays.toString(imageSize)
-                    + ", kL=" + Arrays.toString(kL) + ", kR=" + Arrays.toString(kR)
-                    + ", yaw=" + Arrays.toString(yawDeg) + ", pitch=" + Arrays.toString(pitchDeg) + '}';
+            return "CameraCalibration{"
+                    + "rRawLRow=" + Arrays.toString(rRawLRow)
+                    + ", rRawRRow=" + Arrays.toString(rRawRRow)
+                    + ", kL=" + Arrays.toString(kL)
+                    + ", kR=" + Arrays.toString(kR)
+                    + ", dL=" + Arrays.toString(dL)
+                    + ", dR=" + Arrays.toString(dR)
+                    + ", imageSize=" + Arrays.toString(imageSize)
+                    + ", yawDeg=" + Arrays.toString(yawDeg)
+                    + ", pitchDeg=" + Arrays.toString(pitchDeg)
+                    + '}';
         }
     }
 
